@@ -1,0 +1,46 @@
+# ===== Maven =====
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+
+# Pliki generowane przez IntelliJ / JetBrains
+atlassian-ide-plugin.xml
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# ===== Java =====
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+
+# Archiwa (pakowane artefakty)
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Pliki crash JVM
+hs_err_pid*
+replay_pid*
