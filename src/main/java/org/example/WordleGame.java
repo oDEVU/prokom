@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class WordleGame {
-    String gameName;
-    String wordToGuess;
-    int guessNumber = 0;
-    String[] guesses = new String[0];
+    private String gameName;
+    private String wordToGuess;
+    private int guessNumber = 0;
+    private String[] guesses = new String[0];
 
     // Gemini 3.1 Pro generował 15 losowych słów, (Tablica napisana z palca)
-    String[] allWords = {
+    private String[] allWords = {
             "kotek",
             "trawa",
             "konto",
@@ -28,7 +28,7 @@ public class WordleGame {
             "zegar"
     };
 
-    String[] candidates;
+    private String[] candidates;
 
     public WordleGame(String gameName, String wordToGuess) {
         this.gameName = gameName;
@@ -55,7 +55,7 @@ public class WordleGame {
         return feedback;
     }
 
-    void applyFeedback(String guess, FeedbackValue[] feedback) {
+    public void applyFeedback(String guess, FeedbackValue[] feedback) {
         ArrayList<String> newCandidatesArrayList = new ArrayList<>();
         for (String candidate : candidates) {
             boolean matches = true;
@@ -69,8 +69,13 @@ public class WordleGame {
                     if (candidate.charAt(i) != guess.charAt(i)) {
                         matches = false;
                     }
+                } else if (feedback[i] == FeedbackValue.GRAY) {
+                    if (candidate.indexOf(guess.charAt(i)) != -1) {
+                        matches = false;
+                    }
                 }
             }
+
             if (matches) {
                 newCandidatesArrayList.add(candidate);
             }
@@ -78,7 +83,7 @@ public class WordleGame {
         candidates = newCandidatesArrayList.toArray(new String[0]);
     }
 
-    String[] getCandidates() {
+    public String[] getCandidates() {
         return candidates.clone();
     }
 

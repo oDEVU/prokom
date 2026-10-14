@@ -15,6 +15,14 @@ import org.junit.jupiter.api.Test;
 
 public class WordleGameTest {
 
+    // Helper method for getting private methods.
+    // Source: https://stackoverflow.com/questions/34571/how-do-i-test-a-class-that-has-private-methods-fields-or-inner-classes
+    private Object getPrivateField(Object targetObject, String fieldName) throws Exception {
+        java.lang.reflect.Field field = targetObject.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(targetObject);
+    }
+
     private static final String TARGET = "słowo";
 
     private WordleGame game;
@@ -26,20 +34,20 @@ public class WordleGameTest {
 
     @Test
     @DisplayName("Konstruktor powinien zapisać nazwę gry")
-    void constructorShouldStoreGameName() {
-        assertEquals("Wordle", game.gameName);
+    void constructorShouldStoreGameName() throws Exception {
+        assertEquals("Wordle", getPrivateField(game, "gameName"));
     }
 
     @Test
     @DisplayName("Konstruktor powinien zapisać słowo do zgadnięcia")
-    void constructorShouldStoreWordToGuess() {
-        assertEquals(TARGET, game.wordToGuess);
+    void constructorShouldStoreWordToGuess() throws Exception {
+        assertEquals(TARGET, getPrivateField(game, "wordToGuess"));
     }
 
     @Test
     @DisplayName("Nowa gra powinna mieć zero wykonanych prób")
-    void newGameShouldHaveZeroGuesses() {
-        assertEquals(0, game.guessNumber);
+    void newGameShouldHaveZeroGuesses() throws Exception {
+        assertEquals(0, getPrivateField(game, "guessNumber"));
     }
 
     @Test
@@ -126,35 +134,31 @@ public class WordleGameTest {
 
     @Test
     @DisplayName("Poprawna próba powinna zwiększyć licznik prób o jeden")
-    void validGuessShouldIncrementGuessNumber() {
+    void validGuessShouldIncrementGuessNumber() throws Exception {
         game.guessWord("abcde");
-
-        assertEquals(1, game.guessNumber);
+        assertEquals(1, getPrivateField(game, "guessNumber"));
     }
 
     @Test
     @DisplayName("Niepoprawna długość słowa nie powinna zwiększać licznika prób")
-    void invalidLengthShouldNotIncrementGuessNumber() {
+    void invalidLengthShouldNotIncrementGuessNumber() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> game.guessWord("abc"));
-
-        assertEquals(0, game.guessNumber);
+        assertEquals(0, getPrivateField(game, "guessNumber"));
     }
 
     @Test
     @DisplayName("Poprawna próba powinna zostać zapisana w historii prób")
-    void validGuessShouldBeStoredInGuesses() {
+    void validGuessShouldBeStoredInGuesses() throws Exception {
         game.guessWord("abcde");
-
-        assertArrayEquals(new String[] {"abcde"}, game.guesses);
+        assertArrayEquals(new String[] {"abcde"}, (String[]) getPrivateField(game, "guesses"));
     }
 
     @Test
     @DisplayName("Historia prób powinna zachować kolejność zgadywanych słów")
-    void guessesShouldKeepOrder() {
+    void guessesShouldKeepOrder() throws Exception {
         game.guessWord("abcde");
         game.guessWord("drzwi");
-
-        assertArrayEquals(new String[] {"abcde", "drzwi"}, game.guesses);
+        assertArrayEquals(new String[] {"abcde", "drzwi"}, (String[]) getPrivateField(game, "guesses"));
     }
 
     @Test
@@ -173,7 +177,9 @@ public class WordleGameTest {
                 FeedbackValue.GRAY, FeedbackValue.GRAY
         };
 
-        game.applyFeedback("kotek", feedback);
+        // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
+        // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
+        game.applyFeedback("kxxxx", feedback);
 
         assertArrayEquals(new String[] {"kotek", "konto", "kwiat"}, game.getCandidates());
     }
@@ -186,7 +192,9 @@ public class WordleGameTest {
                 FeedbackValue.GRAY, FeedbackValue.GRAY
         };
 
-        game.applyFeedback("kotek", feedback);
+        // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
+        // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
+        game.applyFeedback("kxxxx", feedback);
 
         assertArrayEquals(new String[] {"ekran", "pasek", "mleko", "miska"}, game.getCandidates());
     }
@@ -199,7 +207,9 @@ public class WordleGameTest {
                 FeedbackValue.GRAY, FeedbackValue.GRAY
         };
 
-        game.applyFeedback("kotek", feedback);
+        // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
+        // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
+        game.applyFeedback("koxxx", feedback);
 
         assertArrayEquals(new String[] {"kotek", "konto"}, game.getCandidates());
     }
