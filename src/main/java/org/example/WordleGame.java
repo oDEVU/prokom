@@ -7,7 +7,7 @@ public class WordleGame {
     String gameName;
     String wordToGuess;
     int guessNumber = 0;
-    String[] guesses;
+    String[] guesses = new String[0];
 
     // Gemini 3.1 Pro generował 15 losowych słów, (Tablica napisana z palca)
     String[] allWords = {
@@ -48,7 +48,6 @@ public class WordleGame {
         FeedbackValue[] feedback = giveFeedback(wordToGuess, guess);
         applyFeedback(guess, feedback);
 
-        // XD?
         guesses = Arrays.copyOf(guesses, guesses.length + 1);
         guesses[guesses.length - 1] = guess;
 
@@ -59,20 +58,20 @@ public class WordleGame {
     void applyFeedback(String guess, FeedbackValue[] feedback) {
         ArrayList<String> newCandidatesArrayList = new ArrayList<>();
         for (String candidate : candidates) {
-            for  (int i = 0; i < feedback.length; i++) {
-                if (feedback[i] == FeedbackValue.GRAY) {
-                    continue;
-                }
+            boolean matches = true;
+            for (int i = 0; i < feedback.length && matches; i++) {
                 if (feedback[i] == FeedbackValue.YELLOW) {
-                    if (candidate.indexOf(guess.charAt(i)) == -1) {
-                        continue;
+                    if (candidate.indexOf(guess.charAt(i)) == -1
+                            || candidate.charAt(i) == guess.charAt(i)) {
+                        matches = false;
                     }
-                }
-                if (feedback[i] == FeedbackValue.GREEN) {
+                } else if (feedback[i] == FeedbackValue.GREEN) {
                     if (candidate.charAt(i) != guess.charAt(i)) {
-                        continue;
+                        matches = false;
                     }
                 }
+            }
+            if (matches) {
                 newCandidatesArrayList.add(candidate);
             }
         }
