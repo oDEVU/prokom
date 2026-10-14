@@ -1,29 +1,265 @@
-import static org.junit.jupiter.api.Assertions.assertThrows;
+package org.example;
 
-import org.example.WordleGame;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class WordleGameTest {
 
-    private final WordleGame game = new WordleGame("Wordle", "slowo");
+    private static final String TARGET = "słowo";
+
+    private WordleGame game;
+
+    @BeforeEach
+    void setUp() {
+        game = new WordleGame("Wordle", TARGET);
+    }
 
     @Test
-    @DisplayName("Words not exactly 5 letters long throw IllegalArgumentException")
-    void testWordLengthLimit() {
+    @DisplayName("Konstruktor powinien zapisać nazwę gry")
+    void constructorShouldStoreGameName() {
+        assertEquals("Wordle", game.gameName);
+    }
+
+    @Test
+    @DisplayName("Konstruktor powinien zapisać słowo do zgadnięcia")
+    void constructorShouldStoreWordToGuess() {
+        assertEquals(TARGET, game.wordToGuess);
+    }
+
+    @Test
+    @DisplayName("Nowa gra powinna mieć zero wykonanych prób")
+    void newGameShouldHaveZeroGuesses() {
+        assertEquals(0, game.guessNumber);
+    }
+
+    @Test
+    @DisplayName("Zbyt długie słowo powinno rzucić IllegalArgumentException")
+    void tooLongWordShouldThrowIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> game.guessWord("abcdef"));
+    }
+
+    @Test
+    @DisplayName("Zbyt krótkie słowo powinno rzucić IllegalArgumentException")
+    void tooShortWordShouldThrowIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> game.guessWord("abcd"));
     }
 
     @Test
-    @DisplayName("More than 6 tries throw IllegalStateException")
-    void testTriesLimit() {
-        final WordleGame tmpGame = new WordleGame("TempWordle", "slowo");
+    @DisplayName("Puste słowo powinno rzucić IllegalArgumentException")
+    void emptyWordShouldThrowIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> game.guessWord(""));
+    }
 
-        assertThrows(IllegalStateException.class, () -> {
-            for (int i = 0; i < 7; i++) {
-                tmpGame.guessWord("abcde");
+    @Test
+    @DisplayName("Siódma próba powinna rzucić IllegalStateException")
+    void seventhGuessShouldThrowIllegalStateException() {
+        for (int i = 0; i < 6; i++) {
+            game.guessWord("abcde");
+        }
+
+        assertThrows(IllegalStateException.class, () -> game.guessWord("abcde"));
+    }
+
+    @Test
+    @DisplayName("Sześć prób nie powinno rzucać wyjątku")
+    void sixGuessesShouldNotThrow() {
+        assertDoesNotThrow(() -> {
+            for (int i = 0; i < 6; i++) {
+                game.guessWord("abcde");
             }
         });
+    }
+
+    @Test
+    @DisplayName("Poprawne słowo powinno zwrócić same GREEN")
+    void correctWordShouldReturnAllGreen() {
+        FeedbackValue[] expected = {
+                FeedbackValue.GREEN, FeedbackValue.GREEN, FeedbackValue.GREEN,
+                FeedbackValue.GREEN, FeedbackValue.GREEN
+        };
+
+        assertArrayEquals(expected, game.guessWord(TARGET));
+    }
+
+    @Test
+    @DisplayName("Słowo bez wspólnych liter powinno zwrócić same GRAY")
+    void wordWithNoCommonLettersShouldReturnAllGray() {
+        FeedbackValue[] expected = {
+                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        assertArrayEquals(expected, game.guessWord("ekran"));
+    }
+
+    @Test
+    @DisplayName("Litery obecne w słowie, ale na złych pozycjach, powinny być YELLOW")
+    void lettersOnWrongPositionsShouldBeYellow() {
+        FeedbackValue[] expected = {
+                FeedbackValue.YELLOW, FeedbackValue.YELLOW, FeedbackValue.GRAY,
+                FeedbackValue.YELLOW, FeedbackValue.GRAY
+        };
+
+        assertArrayEquals(expected, game.guessWord("wolsa"));
+    }
+
+    @Test
+    @DisplayName("Feedback powinien poprawnie mieszać GREEN, YELLOW i GRAY")
+    void feedbackShouldMixGreenYellowAndGray() {
+        FeedbackValue[] expected = {
+                FeedbackValue.GREEN, FeedbackValue.YELLOW, FeedbackValue.GREEN,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        assertArrayEquals(expected, game.guessWord("swoje"));
+    }
+
+    @Test
+    @DisplayName("Poprawna próba powinna zwiększyć licznik prób o jeden")
+    void validGuessShouldIncrementGuessNumber() {
+        game.guessWord("abcde");
+
+        assertEquals(1, game.guessNumber);
+    }
+
+    @Test
+    @DisplayName("Niepoprawna długość słowa nie powinna zwiększać licznika prób")
+    void invalidLengthShouldNotIncrementGuessNumber() {
+        assertThrows(IllegalArgumentException.class, () -> game.guessWord("abc"));
+
+        assertEquals(0, game.guessNumber);
+    }
+
+    @Test
+    @DisplayName("Poprawna próba powinna zostać zapisana w historii prób")
+    void validGuessShouldBeStoredInGuesses() {
+        game.guessWord("abcde");
+
+        assertArrayEquals(new String[] {"abcde"}, game.guesses);
+    }
+
+    @Test
+    @DisplayName("Historia prób powinna zachować kolejność zgadywanych słów")
+    void guessesShouldKeepOrder() {
+        game.guessWord("abcde");
+        game.guessWord("drzwi");
+
+        assertArrayEquals(new String[] {"abcde", "drzwi"}, game.guesses);
+    }
+
+    @Test
+    @DisplayName("Próba powinna zawęzić listę kandydatów")
+    void guessShouldNarrowCandidates() {
+        game.guessWord(TARGET);
+
+        assertArrayEquals(new String[] {TARGET}, game.getCandidates());
+    }
+
+    @Test
+    @DisplayName("GREEN powinien zostawić tylko słowa z tą literą na tej pozycji")
+    void greenShouldKeepOnlyWordsWithLetterAtSamePosition() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.GREEN, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        game.applyFeedback("kotek", feedback);
+
+        assertArrayEquals(new String[] {"kotek", "konto", "kwiat"}, game.getCandidates());
+    }
+
+    @Test
+    @DisplayName("YELLOW powinien zostawić słowa z tą literą na innej pozycji")
+    void yellowShouldKeepOnlyWordsWithLetterOnDifferentPosition() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.YELLOW, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        game.applyFeedback("kotek", feedback);
+
+        assertArrayEquals(new String[] {"ekran", "pasek", "mleko", "miska"}, game.getCandidates());
+    }
+
+    @Test
+    @DisplayName("Wiele pozycji GREEN powinno zostawić każdego pasującego kandydata tylko raz")
+    void multipleGreensShouldKeepEachCandidateOnce() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.GREEN, FeedbackValue.GREEN, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        game.applyFeedback("kotek", feedback);
+
+        assertArrayEquals(new String[] {"kotek", "konto"}, game.getCandidates());
+    }
+
+    @Test
+    @DisplayName("Same GREEN powinny zostawić tylko zgadnięte słowo")
+    void allGreenShouldLeaveOnlyGuessedWord() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.GREEN, FeedbackValue.GREEN, FeedbackValue.GREEN,
+                FeedbackValue.GREEN, FeedbackValue.GREEN
+        };
+
+        game.applyFeedback("kotek", feedback);
+
+        assertArrayEquals(new String[] {"kotek"}, game.getCandidates());
+    }
+
+    @Test
+    @DisplayName("Feedback niepasujący do żadnego słowa powinien opróżnić listę kandydatów")
+    void feedbackMatchingNothingShouldEmptyCandidates() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.GREEN, FeedbackValue.GREEN, FeedbackValue.GREEN,
+                FeedbackValue.GREEN, FeedbackValue.GREEN
+        };
+
+        game.applyFeedback("xxxxx", feedback);
+
+        assertEquals(0, game.getCandidates().length);
+    }
+
+    @Test
+    @DisplayName("Lista kandydatów po próbie powinna nadal zawierać słowo do zgadnięcia")
+    void candidatesShouldStillContainTargetAfterGuess() {
+        game.guessWord("konto");
+
+        assertTrue(Arrays.asList(game.getCandidates()).contains(TARGET));
+    }
+
+    @Test
+    @DisplayName("Nowa gra powinna zaczynać z 15 kandydatami")
+    void newGameShouldStartWithFifteenCandidates() {
+        assertEquals(15, game.getCandidates().length);
+    }
+
+    @Test
+    @DisplayName("getCandidates powinno zwracać kopię tablicy, a nie oryginał")
+    void getCandidatesShouldReturnDefensiveCopy() {
+        String[] first = game.getCandidates();
+        String[] second = game.getCandidates();
+
+        assertNotSame(first, second);
+    }
+
+    @Test
+    @DisplayName("Zmiana zwróconej tablicy nie powinna wpływać na stan gry")
+    void modifyingReturnedCandidatesShouldNotAffectGame() {
+        String[] candidates = game.getCandidates();
+        String original = candidates[0];
+        candidates[0] = "zmiana";
+
+        assertEquals(original, game.getCandidates()[0]);
     }
 }
