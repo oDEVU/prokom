@@ -30,16 +30,16 @@ public class WordleGame {
 
     String[] candidates;
 
-    WordleGame(String gameName, String wordToGuess) {
+    public WordleGame(String gameName, String wordToGuess) {
         this.gameName = gameName;
         this.wordToGuess = wordToGuess;
 
         candidates = allWords.clone();
     }
 
-    FeedbackValue[] guessWord(String guess) {
+    public FeedbackValue[] guessWord(String guess) {
         if (guess.length() != 5) {
-            throw new IllegalStateException("Zla dlugosc zgadywanego slowa.");
+            throw new IllegalArgumentException("Zla dlugosc zgadywanego slowa.");
         }
         if (guessNumber >= 6) {
             throw new IllegalStateException("Przekroczono limit prob.");
