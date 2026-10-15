@@ -26,10 +26,12 @@ public class WordleGameTest {
     private static final String TARGET = "słowo";
 
     private WordleGame game;
+    private WordleSolver solver;
 
     @BeforeEach
     void setUp() {
-        game = new WordleGame("Wordle", TARGET);
+        solver = new WordleSolver();
+        game = new WordleGame("Wordle", TARGET, solver);
     }
 
     @Test
@@ -168,7 +170,7 @@ public class WordleGameTest {
     void guessShouldNarrowCandidates() {
         game.guessWord("kotek");
 
-        assertArrayEquals(new String[] {"słowo"}, game.getCandidates());
+        assertArrayEquals(new String[] {"słowo"}, solver.getCandidates());
     }
 
     @Test
@@ -181,9 +183,9 @@ public class WordleGameTest {
 
         // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
         // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
-        game.applyFeedback("kxxxx", feedback);
+        solver.applyFeedback("kxxxx", feedback);
 
-        assertArrayEquals(new String[] {"kotek", "konto", "kwiat"}, game.getCandidates());
+        assertArrayEquals(new String[] {"kotek", "konto", "kwiat"}, solver.getCandidates());
     }
 
     @Test
@@ -196,9 +198,9 @@ public class WordleGameTest {
 
         // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
         // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
-        game.applyFeedback("kxxxx", feedback);
+        solver.applyFeedback("kxxxx", feedback);
 
-        assertArrayEquals(new String[] {"ekran", "pasek", "mleko", "miska"}, game.getCandidates());
+        assertArrayEquals(new String[] {"ekran", "pasek", "mleko", "miska"}, solver.getCandidates());
     }
 
     @Test
@@ -211,9 +213,9 @@ public class WordleGameTest {
 
         // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
         // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
-        game.applyFeedback("koxxx", feedback);
+        solver.applyFeedback("koxxx", feedback);
 
-        assertArrayEquals(new String[] {"kotek", "konto"}, game.getCandidates());
+        assertArrayEquals(new String[] {"kotek", "konto"}, solver.getCandidates());
     }
 
     @Test
@@ -226,9 +228,9 @@ public class WordleGameTest {
 
         // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
         // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
-        game.applyFeedback("kxxxx", feedback);
+        solver.applyFeedback("kxxxx", feedback);
 
-        assertArrayEquals(new String[] {"trawa", "słowo", "drzwi", "lampa", "rower", "serce", "chleb", "zegar"}, game.getCandidates());
+        assertArrayEquals(new String[] {"trawa", "słowo", "drzwi", "lampa", "rower", "serce", "chleb", "zegar"}, solver.getCandidates());
     }
 
     @Test
@@ -241,9 +243,9 @@ public class WordleGameTest {
 
         // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
         // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
-        game.applyFeedback("zxxxx", feedback);
+        solver.applyFeedback("zxxxx", feedback);
 
-        assertArrayEquals(new String[] {"drzwi"}, game.getCandidates());
+        assertArrayEquals(new String[] {"drzwi"}, solver.getCandidates());
     }
 
     @Test
@@ -254,9 +256,9 @@ public class WordleGameTest {
                 FeedbackValue.GREEN, FeedbackValue.GREEN
         };
 
-        game.applyFeedback("kotek", feedback);
+        solver.applyFeedback("kotek", feedback);
 
-        assertArrayEquals(new String[] {"kotek"}, game.getCandidates());
+        assertArrayEquals(new String[] {"kotek"}, solver.getCandidates());
     }
 
     @Test
@@ -267,9 +269,9 @@ public class WordleGameTest {
                 FeedbackValue.GREEN, FeedbackValue.GREEN
         };
 
-        game.applyFeedback("xxxxx", feedback);
+        solver.applyFeedback("xxxxx", feedback);
 
-        assertEquals(0, game.getCandidates().length);
+        assertEquals(0, solver.getCandidates().length);
     }
 
     @Test
@@ -280,9 +282,9 @@ public class WordleGameTest {
                 FeedbackValue.GRAY, FeedbackValue.YELLOW
         };
 
-        game.applyFeedback("kwiat", feedback);
+        solver.applyFeedback("kwiat", feedback);
 
-        assertArrayEquals(new String[] {"kotek", "konto"}, game.getCandidates());
+        assertArrayEquals(new String[] {"kotek", "konto"}, solver.getCandidates());
     }
 
 //    @Test
@@ -301,20 +303,20 @@ public class WordleGameTest {
     void candidatesShouldStillContainTargetAfterGuess() {
         game.guessWord("konto");
 
-        assertTrue(Arrays.asList(game.getCandidates()).contains(TARGET));
+        assertTrue(Arrays.asList(solver.getCandidates()).contains(TARGET));
     }
 
     @Test
     @DisplayName("Nowa gra powinna zaczynać z 15 kandydatami")
     void newGameShouldStartWithFifteenCandidates() {
-        assertEquals(15, game.getCandidates().length);
+        assertEquals(15, solver.getCandidates().length);
     }
 
     @Test
     @DisplayName("getCandidates powinno zwracać kopię tablicy, a nie oryginał")
     void getCandidatesShouldReturnDefensiveCopy() {
-        String[] first = game.getCandidates();
-        String[] second = game.getCandidates();
+        String[] first = solver.getCandidates();
+        String[] second = solver.getCandidates();
 
         assertNotSame(first, second);
     }
@@ -322,10 +324,10 @@ public class WordleGameTest {
     @Test
     @DisplayName("Zmiana zwróconej tablicy nie powinna wpływać na stan gry")
     void modifyingReturnedCandidatesShouldNotAffectGame() {
-        String[] candidates = game.getCandidates();
+        String[] candidates = solver.getCandidates();
         String original = candidates[0];
         candidates[0] = "zmiana";
 
-        assertEquals(original, game.getCandidates()[0]);
+        assertEquals(original, solver.getCandidates()[0]);
     }
 }
