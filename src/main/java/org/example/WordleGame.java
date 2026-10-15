@@ -16,6 +16,7 @@ public class WordleGame {
         this.solver = solver;
     }
 
+    // todo: Check for null
     public FeedbackValue[] guessWord(String guess) {
         if (guess.length() != Constants.WORD_SIZE) {
             throw new IllegalArgumentException("Zla dlugosc zgadywanego slowa.");
