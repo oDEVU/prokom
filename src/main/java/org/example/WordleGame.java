@@ -17,10 +17,10 @@ public class WordleGame {
     }
 
     public FeedbackValue[] guessWord(String guess) {
-        if (guess.length() != 5) {
+        if (guess.length() != Constants.WORD_SIZE) {
             throw new IllegalArgumentException("Zla dlugosc zgadywanego slowa.");
         }
-        if (guessNumber >= 6) {
+        if (guessNumber >= Constants.MAX_TRIES) {
             throw new IllegalStateException("Przekroczono limit prob.");
         }
 
