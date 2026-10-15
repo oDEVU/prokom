@@ -91,6 +91,10 @@ public class WordleGame {
         int wordLength = wordToGuess.length();
         FeedbackValue[] feedback = new FeedbackValue[wordLength];
 
+        // liczenie występowania liter dla poprawnego dla logiki wordle obslugiwania zoltych?
+        // np. slowo: kotek, guess: kolor, powinno byc: GG---, jest: GG-Y-
+        // jeżeli tak, odkomentować test excessRepeatedLetterShouldBeGray()
+
         for (int i = 0; i < wordLength; i++) {
             if (wordToGuess.charAt(i) == guess.charAt(i)) {
                 feedback[i] = FeedbackValue.GREEN;

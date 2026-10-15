@@ -135,6 +135,7 @@ public class WordleGameTest {
     @Test
     @DisplayName("Poprawna próba powinna zwiększyć licznik prób o jeden")
     void validGuessShouldIncrementGuessNumber() throws Exception {
+        assertEquals(0, getPrivateField(game, "guessNumber"));
         game.guessWord("abcde");
         assertEquals(1, getPrivateField(game, "guessNumber"));
     }
@@ -142,6 +143,7 @@ public class WordleGameTest {
     @Test
     @DisplayName("Niepoprawna długość słowa nie powinna zwiększać licznika prób")
     void invalidLengthShouldNotIncrementGuessNumber() throws Exception {
+        assertEquals(0, getPrivateField(game, "guessNumber"));
         assertThrows(IllegalArgumentException.class, () -> game.guessWord("abc"));
         assertEquals(0, getPrivateField(game, "guessNumber"));
     }
@@ -164,9 +166,9 @@ public class WordleGameTest {
     @Test
     @DisplayName("Próba powinna zawęzić listę kandydatów")
     void guessShouldNarrowCandidates() {
-        game.guessWord(TARGET);
+        game.guessWord("kotek");
 
-        assertArrayEquals(new String[] {TARGET}, game.getCandidates());
+        assertArrayEquals(new String[] {"słowo"}, game.getCandidates());
     }
 
     @Test
@@ -215,6 +217,36 @@ public class WordleGameTest {
     }
 
     @Test
+    @DisplayName("GRAY powinno usunąć kandydatów zawierających daną literę")
+    void grayShouldRemoveCandidatesWithLetter() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
+        // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
+        game.applyFeedback("kxxxx", feedback);
+
+        assertArrayEquals(new String[] {"trawa", "słowo", "drzwi", "lampa", "rower", "serce", "chleb", "zegar"}, game.getCandidates());
+    }
+
+    @Test
+    @DisplayName("YELLOW powinno usunąć kandydatów nieposiadających danej litery")
+    void yellowShouldRemoveCandidatesWithoutLetter() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.YELLOW, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        // litery 'x' uzyto jako place holder gdyż zadne slowo w candidates jej nie ma i nie zostanie odzucone.
+        // Użycie innych liter skutowalo w przedwczesnym odzuceniem wszystkich kandydatow.
+        game.applyFeedback("zxxxx", feedback);
+
+        assertArrayEquals(new String[] {"drzwi"}, game.getCandidates());
+    }
+
+    @Test
     @DisplayName("Same GREEN powinny zostawić tylko zgadnięte słowo")
     void allGreenShouldLeaveOnlyGuessedWord() {
         FeedbackValue[] feedback = {
@@ -239,6 +271,30 @@ public class WordleGameTest {
 
         assertEquals(0, game.getCandidates().length);
     }
+
+    @Test
+    @DisplayName("Feedback zawierający wszystkie możliwe wartości powinien zastosować ich reguły")
+    void feedbackWithAllValues() {
+        FeedbackValue[] feedback = {
+                FeedbackValue.GREEN, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.YELLOW
+        };
+
+        game.applyFeedback("kwiat", feedback);
+
+        assertArrayEquals(new String[] {"kotek", "konto"}, game.getCandidates());
+    }
+
+//    @Test
+//    @DisplayName("Powtarzająca się litera powinna dostać kolor tyle razy ile występuje w zgadywanym słowie.")
+//    void excessRepeatedLetterShouldBeGray() {
+//        FeedbackValue[] expected = {
+//                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GREEN,
+//                FeedbackValue.GRAY, FeedbackValue.GREEN
+//        };
+//
+//        assertArrayEquals(expected, game.guessWord("ooooo"));
+//    }
 
     @Test
     @DisplayName("Lista kandydatów po próbie powinna nadal zawierać słowo do zgadnięcia")
