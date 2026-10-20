@@ -1,5 +1,6 @@
 package org.example;
 
+import static org.example.Constants.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+// todo: rozdzielic na WordleGameTest i WordleSolverTest
 public class WordleGameTest {
 
     // Helper method for getting private methods.
@@ -23,7 +25,10 @@ public class WordleGameTest {
         return field.get(targetObject);
     }
 
+    // todo: jezeli allWords nie beda juz jednakowej dlugosci to zmienic tu
     private static final String TARGET = "słowo";
+    private static final String VALID_WORD = "a".repeat(WORD_SIZE);
+    private static final String OTHER_VALID_WORD = "b".repeat(WORD_SIZE);
 
     private WordleGame game;
     private WordleSolver solver;
@@ -55,13 +60,13 @@ public class WordleGameTest {
     @Test
     @DisplayName("Zbyt długie słowo powinno rzucić IllegalArgumentException")
     void tooLongWordShouldThrowIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> game.guessWord("abcdef"));
+        assertThrows(IllegalArgumentException.class, () -> game.guessWord("a".repeat(WORD_SIZE + 1)));
     }
 
     @Test
     @DisplayName("Zbyt krótkie słowo powinno rzucić IllegalArgumentException")
     void tooShortWordShouldThrowIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> game.guessWord("abcd"));
+        assertThrows(IllegalArgumentException.class, () -> game.guessWord("a".repeat(WORD_SIZE - 1)));
     }
 
     @Test
@@ -78,25 +83,26 @@ public class WordleGameTest {
 
 
     @Test
-    @DisplayName("Siódma próba powinna rzucić IllegalStateException")
-    void seventhGuessShouldThrowIllegalStateException() {
-        for (int i = 0; i < 6; i++) {
-            game.guessWord("abcde");
+    @DisplayName("Próba wykraczająca poza limit powinna rzucić IllegalStateException")
+    void guessOverMaxTriesShouldThrowIllegalStateException() {
+        for (int i = 0; i < MAX_TRIES; i++) {
+            game.guessWord(VALID_WORD);
         }
 
-        assertThrows(IllegalStateException.class, () -> game.guessWord("abcde"));
+        assertThrows(IllegalStateException.class, () -> game.guessWord(VALID_WORD));
     }
 
     @Test
-    @DisplayName("Sześć prób nie powinno rzucać wyjątku")
-    void sixGuessesShouldNotThrow() {
+    @DisplayName("Próba równa limitowi nie powinna rzucać wyjątku")
+    void maxTriesGuessShouldNotThrow() {
         assertDoesNotThrow(() -> {
-            for (int i = 0; i < 6; i++) {
-                game.guessWord("abcde");
+            for (int i = 0; i < MAX_TRIES; i++) {
+                game.guessWord(VALID_WORD);
             }
         });
     }
 
+    // todo: jezeli allWords nie beda juz jednakowej dlugosci to zmienic tu (expected i guessWord())
     @Test
     @DisplayName("Poprawne słowo powinno zwrócić same GREEN")
     void correctWordShouldReturnAllGreen() {
@@ -145,7 +151,7 @@ public class WordleGameTest {
     @DisplayName("Poprawna próba powinna zwiększyć licznik prób o jeden")
     void validGuessShouldIncrementGuessNumber() throws Exception {
         assertEquals(0, getPrivateField(game, "guessNumber"));
-        game.guessWord("abcde");
+        game.guessWord(VALID_WORD);
         assertEquals(1, getPrivateField(game, "guessNumber"));
     }
 
@@ -153,25 +159,26 @@ public class WordleGameTest {
     @DisplayName("Niepoprawna długość słowa nie powinna zwiększać licznika prób")
     void invalidLengthShouldNotIncrementGuessNumber() throws Exception {
         assertEquals(0, getPrivateField(game, "guessNumber"));
-        assertThrows(IllegalArgumentException.class, () -> game.guessWord("abc"));
+        assertThrows(IllegalArgumentException.class, () -> game.guessWord("a".repeat(WORD_SIZE-1)));
         assertEquals(0, getPrivateField(game, "guessNumber"));
     }
 
     @Test
     @DisplayName("Poprawna próba powinna zostać zapisana w historii prób")
     void validGuessShouldBeStoredInGuesses() throws Exception {
-        game.guessWord("abcde");
-        assertArrayEquals(new String[] {"abcde"}, (String[]) getPrivateField(game, "guesses"));
+        game.guessWord(VALID_WORD);
+        assertArrayEquals(new String[] {VALID_WORD}, (String[]) getPrivateField(game, "guesses"));
     }
 
     @Test
     @DisplayName("Historia prób powinna zachować kolejność zgadywanych słów")
     void guessesShouldKeepOrder() throws Exception {
-        game.guessWord("abcde");
-        game.guessWord("drzwi");
-        assertArrayEquals(new String[] {"abcde", "drzwi"}, (String[]) getPrivateField(game, "guesses"));
+        game.guessWord(VALID_WORD);
+        game.guessWord(OTHER_VALID_WORD);
+        assertArrayEquals(new String[] {VALID_WORD, OTHER_VALID_WORD}, (String[]) getPrivateField(game, "guesses"));
     }
 
+    // todo: jezeli allWords nie beda juz jednakowej dlugosci to zmienic tu (10 nastepnych testow)
     @Test
     @DisplayName("Próba powinna zawęzić listę kandydatów")
     void guessShouldNarrowCandidates() {
@@ -308,7 +315,7 @@ public class WordleGameTest {
     @Test
     @DisplayName("Lista kandydatów po próbie powinna nadal zawierać słowo do zgadnięcia")
     void candidatesShouldStillContainTargetAfterGuess() {
-        game.guessWord("konto");
+        game.guessWord(VALID_WORD);
 
         assertTrue(Arrays.asList(solver.getCandidates()).contains(TARGET));
     }
