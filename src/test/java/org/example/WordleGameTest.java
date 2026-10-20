@@ -70,13 +70,12 @@ public class WordleGameTest {
         assertThrows(IllegalArgumentException.class, () -> game.guessWord(""));
     }
 
-    /* todo: test for null
     @Test
-    @DisplayName("")
-    void () {
-        assertThrows(IllegalArgumentException.class, () -> game.guessWord(null));
+    @DisplayName("Niepodanie słowa powinno rzucić IllegalArgumentException")
+    void nullWorldShouldThrowIllegalArgumentException() {
+        assertThrows(NullPointerException.class, () -> game.guessWord(null));
     }
-    */
+
 
     @Test
     @DisplayName("Siódma próba powinna rzucić IllegalStateException")
