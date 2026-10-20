@@ -42,10 +42,8 @@ public class WordleSolver {
                     if (candidate.charAt(i) != guess.charAt(i)) {
                         matches = false;
                     }
-                } else if (feedback[i] == FeedbackValue.GRAY) {
-                    if (candidate.indexOf(guess.charAt(i)) != -1) {
-                        matches = false;
-                    }
+                } else if (candidate.indexOf(guess.charAt(i)) != -1) {
+                    matches = false;
                 }
             }
 
