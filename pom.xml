@@ -27,6 +27,10 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jacoco.version>0.8.15</jacoco.version>
+        <jxr.version>3.6.0</jxr.version>
+        <maven.checkstyle.version>3.6.0</maven.checkstyle.version>
+        <pmd.version>3.28.0</pmd.version>
     </properties>
 
     <dependencies>
@@ -43,7 +47,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.15</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -62,7 +66,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${maven.checkstyle.version}</version>
                 <configuration>
                     <configLocation>checkstyle2025.xml</configLocation>
                 </configuration>
@@ -104,12 +108,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${jxr.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.28.0</version>
+                <version>${pmd.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -124,7 +128,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${maven.checkstyle.version}</version>
                 <configuration>
                     <configLocation>checkstyle2025.xml</configLocation>
                     <inputEncoding>UTF-8</inputEncoding>
@@ -140,10 +144,9 @@
                 </reportSets>
             </plugin>
             <plugin>
-                <!-- todo: do it as property -->
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.15</version>
+                <version>${jacoco.version}</version>
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -155,12 +158,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${jxr.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.28.0</version>
+                <version>${pmd.version}</version>
             </plugin>
         </plugins>
     </reporting>
