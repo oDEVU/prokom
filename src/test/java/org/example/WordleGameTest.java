@@ -4,11 +4,7 @@ import static org.example.Constants.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,7 +70,7 @@ public class WordleGameTest {
     }
 
     @Test
-    @DisplayName("Niepodanie słowa powinno rzucić IllegalArgumentException")
+    @DisplayName("Niepodanie słowa powinno rzucić NullPointerException")
     void nullWorldShouldThrowIllegalArgumentException() {
         assertThrows(NullPointerException.class, () -> game.guessWord(null));
     }
