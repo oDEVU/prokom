@@ -8,7 +8,7 @@ public class WordleGame {
     private String wordToGuess;
     private int guessNumber = 0;
     private String[] guesses = new String[0];
-    WordleSolver solver;
+    private WordleSolver solver;
 
     public WordleGame(String gameName, String wordToGuess, WordleSolver solver) {
         this.gameName = gameName;
