@@ -31,12 +31,10 @@ public class WordleGameTest {
     private static final String OTHER_VALID_WORD = "b".repeat(WORD_SIZE);
 
     private WordleGame game;
-    private WordleSolver solver;
 
     @BeforeEach
     void setUp() {
-        solver = new WordleSolver();
-        game = new WordleGame("Wordle", TARGET, solver);
+        game = new WordleGame("Wordle", TARGET, new WordleSolver());
     }
 
     @Test
@@ -102,51 +100,6 @@ public class WordleGameTest {
         });
     }
 
-    // todo: jezeli allWords nie beda juz jednakowej dlugosci to zmienic tu (expected i guessWord())
-    @Test
-    @DisplayName("Poprawne słowo powinno zwrócić same GREEN")
-    void correctWordShouldReturnAllGreen() {
-        FeedbackValue[] expected = {
-                FeedbackValue.GREEN, FeedbackValue.GREEN, FeedbackValue.GREEN,
-                FeedbackValue.GREEN, FeedbackValue.GREEN
-        };
-
-        assertArrayEquals(expected, game.guessWord(TARGET));
-    }
-
-    @Test
-    @DisplayName("Słowo bez wspólnych liter powinno zwrócić same GRAY")
-    void wordWithNoCommonLettersShouldReturnAllGray() {
-        FeedbackValue[] expected = {
-                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GRAY,
-                FeedbackValue.GRAY, FeedbackValue.GRAY
-        };
-
-        assertArrayEquals(expected, game.guessWord("ekran"));
-    }
-
-    @Test
-    @DisplayName("Litery obecne w słowie, ale na złych pozycjach, powinny być YELLOW")
-    void lettersOnWrongPositionsShouldBeYellow() {
-        FeedbackValue[] expected = {
-                FeedbackValue.YELLOW, FeedbackValue.YELLOW, FeedbackValue.GRAY,
-                FeedbackValue.YELLOW, FeedbackValue.GRAY
-        };
-
-        assertArrayEquals(expected, game.guessWord("wolsa"));
-    }
-
-    @Test
-    @DisplayName("Feedback powinien poprawnie mieszać GREEN, YELLOW i GRAY")
-    void feedbackShouldMixGreenYellowAndGray() {
-        FeedbackValue[] expected = {
-                FeedbackValue.GREEN, FeedbackValue.YELLOW, FeedbackValue.GREEN,
-                FeedbackValue.GRAY, FeedbackValue.GRAY
-        };
-
-        assertArrayEquals(expected, game.guessWord("swoje"));
-    }
-
     @Test
     @DisplayName("Poprawna próba powinna zwiększyć licznik prób o jeden")
     void validGuessShouldIncrementGuessNumber() throws Exception {
@@ -176,36 +129,5 @@ public class WordleGameTest {
         game.guessWord(VALID_WORD);
         game.guessWord(OTHER_VALID_WORD);
         assertArrayEquals(new String[] {VALID_WORD, OTHER_VALID_WORD}, (String[]) getPrivateField(game, "guesses"));
-    }
-
-    // todo: jezeli allWords nie beda juz jednakowej dlugosci to zmienic tu (10 nastepnych testow)
-    // todo: 2 nastepne test nadal kozystaja z solvera, nie mam jebanego pojecia co z tym faktem zrobić
-    @Test
-    @DisplayName("Próba powinna zawęzić listę kandydatów")
-    void guessShouldNarrowCandidates() {
-        game.guessWord("kotek");
-
-        assertArrayEquals(new String[] {"słowo"}, solver.getCandidates());
-    }
-
-    // Czmu to jest zakomentowane Janek?
-
-//    @Test
-//    @DisplayName("Powtarzająca się litera powinna dostać kolor tyle razy ile występuje w zgadywanym słowie.")
-//    void excessRepeatedLetterShouldBeGray() {
-//        FeedbackValue[] expected = {
-//                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GREEN,
-//                FeedbackValue.GRAY, FeedbackValue.GREEN
-//        };
-//
-//        assertArrayEquals(expected, game.guessWord("ooooo"));
-//    }
-
-    @Test
-    @DisplayName("Lista kandydatów po próbie powinna nadal zawierać słowo do zgadnięcia")
-    void candidatesShouldStillContainTargetAfterGuess() {
-        game.guessWord(VALID_WORD);
-
-        assertTrue(Arrays.asList(solver.getCandidates()).contains(TARGET));
     }
 }

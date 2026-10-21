@@ -163,4 +163,69 @@ public class WordleSolverTest {
 
         assertEquals(original, solver.getCandidates()[0]);
     }
+
+    @Test
+    @DisplayName("Poprawne słowo powinno zwrócić same GREEN")
+    void correctWordShouldReturnAllGreen() {
+        FeedbackValue[] expected = {
+                FeedbackValue.GREEN, FeedbackValue.GREEN, FeedbackValue.GREEN,
+                FeedbackValue.GREEN, FeedbackValue.GREEN
+        };
+
+        assertArrayEquals(expected, solver.giveFeedback(TARGET, TARGET));
+    }
+
+    @Test
+    @DisplayName("Słowo bez wspólnych liter powinno zwrócić same GRAY")
+    void wordWithNoCommonLettersShouldReturnAllGray() {
+        FeedbackValue[] expected = {
+                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GRAY,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        assertArrayEquals(expected, solver.giveFeedback(TARGET, "ekran"));
+    }
+
+    @Test
+    @DisplayName("Litery obecne w słowie, ale na złych pozycjach, powinny być YELLOW")
+    void lettersOnWrongPositionsShouldBeYellow() {
+        FeedbackValue[] expected = {
+                FeedbackValue.YELLOW, FeedbackValue.YELLOW, FeedbackValue.GRAY,
+                FeedbackValue.YELLOW, FeedbackValue.GRAY
+        };
+
+        assertArrayEquals(expected, solver.giveFeedback(TARGET, "wolsa"));
+    }
+
+    @Test
+    @DisplayName("Feedback powinien poprawnie mieszać GREEN, YELLOW i GRAY")
+    void feedbackShouldMixGreenYellowAndGray() {
+        FeedbackValue[] expected = {
+                FeedbackValue.GREEN, FeedbackValue.YELLOW, FeedbackValue.GREEN,
+                FeedbackValue.GRAY, FeedbackValue.GRAY
+        };
+
+        assertArrayEquals(expected, solver.giveFeedback(TARGET, "swoje"));
+    }
+
+    // Czmu to jest zakomentowane Janek?
+
+//    @Test
+//    @DisplayName("Powtarzająca się litera powinna dostać kolor tyle razy ile występuje w zgadywanym słowie.")
+//    void excessRepeatedLetterShouldBeGray() {
+//        FeedbackValue[] expected = {
+//                FeedbackValue.GRAY, FeedbackValue.GRAY, FeedbackValue.GREEN,
+//                FeedbackValue.GRAY, FeedbackValue.GREEN
+//        };
+//
+//        assertArrayEquals(expected, solver.giveFeedback(TARGET, "ooooo"));
+//    }
+
+    @Test
+    @DisplayName("Lista kandydatów po zastosowaniu feedbacku powinna nadal zawierać słowo do zgadnięcia")
+    void candidatesShouldStillContainTargetAfterFeedback() {
+        solver.applyFeedback("ekran", solver.giveFeedback(TARGET, "ekran"));
+
+        assertTrue(Arrays.asList(solver.getCandidates()).contains(TARGET));
+    }
 }
